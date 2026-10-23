@@ -1,0 +1,35 @@
+[project]
+name = "juridico-rag-bot"
+version = "0.1.0"
+description = "Bot de suporte jurídico interno com RAG para análise de prazos e contratos"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "streamlit>=1.35.0",
+    "requests>=2.31.0",
+    "google-genai>=0.1.0",
+    "llama-index-core>=0.10.50",
+    "llama-index-vector-stores-chroma>=0.1.0",
+    "llama-index-embeddings-gemini>=0.1.0",
+    "llama-index-llms-gemini>=0.1.0",
+    "chromadb>=0.4.24",
+    "pypdf>=4.1.0",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+]
