@@ -14,10 +14,10 @@ jobs:
     - name: Copiar código do repositório
       uses: actions/checkout@v4
 
-    - name: Configurar Python 3.11
+    - name: Configurar Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: "3.11"
+        python-version: "3.12"
 
     - name: Instalar o gerenciador uv
       uses: astral-sh/setup-uv@v5
