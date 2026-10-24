@@ -15,7 +15,7 @@ Seu propósito é permitir que advogados associados, estagiários e gestores con
 - **Modelos de IA (Google Gemini)**:
   - **LLM**: `gemini-2.5-flash` (via API Gemini).
   - **Embedding**: `gemini-embedding-001` / `models/gemini-embedding-001`.
-- **Banco Vetorial**: [ChromaDB](https://www.trychroma.com/) (persistido localmente no diretório `chroma_db/`, collection `juridico_collection`).
+- **Banco Vetorial**: PostgreSQL com extensão `pgvector` (tabela `juridico_nodes`), gerenciado via container Docker `juridico_postgres`.
 - **Backend / API**: [FastAPI](https://fastapi.tiangolo.com/) com validação via Pydantic e servidor Uvicorn.
 - **Frontend / Interface**: [Streamlit](https://streamlit.io/) com chat interativo e exibição de fontes citadas.
 - **Containerização**: Docker e Docker Compose (`Dockerfile`, `Dockerfile.streamlit`, `docker-compose.yml`).
@@ -27,22 +27,23 @@ Seu propósito é permitir que advogados associados, estagiários e gestores con
 
 ```plaintext
 juridico-rag-bot/
+├── .github/
+│   └── workflows/ci.yml    # Pipeline de CI com GitHub Actions
 ├── .env.exemplo            # Exemplo de variáveis de ambiente necessárias
 ├── .env                    # Chaves de API locais (GOOGLE_API_KEY / GEMINI_API_KEY)
 ├── ARCHITECTURE.md         # Diagrama e desenho técnico da arquitetura
 ├── ROADMAP.md              # Próximos passos e backlog do projeto
 ├── pyproject.toml          # Dependências do projeto gerenciadas via uv
-├── docker-compose.yml      # Orquestração dos containers (API + Streamlit)
+├── docker-compose.yml      # Orquestração dos containers (Postgres pgvector + API + Streamlit)
 ├── Dockerfile              # Imagem para execução da API FastAPI
 ├── Dockerfile.streamlit    # Imagem para execução do frontend Streamlit
 ├── data/                   # Documentos PDF de entrada (contratos e legislação)
-├── chroma_db/              # Base vetorial persistida gerada na ingestão
 ├── prompts/
 │   └── agent_prompt.md     # Persona, regras e diretrizes do agente jurídico
 ├── src/
 │   ├── __init__.py
-│   ├── ingest.py           # Pipeline ETL: leitura de PDFs, chunking e gravação no ChromaDB
-│   ├── bot.py              # Motor RAG: conexão com ChromaDB, modelo Gemini e Query Engine
+│   ├── ingest.py           # Pipeline ETL: leitura de PDFs, chunking e gravação no PostgreSQL (pgvector)
+│   ├── bot.py              # Motor RAG: conexão com PostgreSQL (pgvector), modelo Gemini e Query Engine
 │   ├── api.py              # API FastAPI: expõe endpoints GET / e POST /chat
 │   └── app.py              # Interface Web em Streamlit consumindo a API
 └── tests/                  # Testes automatizados da aplicação
@@ -55,10 +56,10 @@ juridico-rag-bot/
 1. **Ingestão (`src/ingest.py`)**:
    - Lê recursivamente PDFs em `data/` usando `SimpleDirectoryReader`.
    - Gera embeddings com `GeminiEmbedding`.
-   - Salva e indexa no ChromaDB persistente em `chroma_db/` na coleção `juridico_collection`.
+   - Salva e indexa no PostgreSQL via `PGVectorStore` na tabela `juridico_nodes`.
 
 2. **Motor RAG (`src/bot.py`)**:
-   - Conecta ao ChromaDB existente e recupera os nós mais similares (`similarity_top_k=3`).
+   - Conecta ao PostgreSQL via `PGVectorStore` e recupera os nós mais similares (`similarity_top_k=3`).
    - Carrega a persona e diretrizes do assistente de `prompts/agent_prompt.md`.
    - Configura o LLM `gemini-2.5-flash` e gera a resposta fundamentada com citações dos documentos de origem.
 

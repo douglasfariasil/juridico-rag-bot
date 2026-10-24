@@ -1,0 +1,36 @@
+name: CI/CD - Lex & Associados Bot
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Copiar código do repositório
+      uses: actions/checkout@v4
+
+    - name: Configurar Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Instalar o gerenciador uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "latest"
+
+    - name: Instalar dependências do projeto
+      run: |
+        uv pip install --system -e .
+        uv pip install --system pytest httpx
+
+    - name: Executar testes automatizados com Pytest
+      env:
+        GEMINI_API_KEY: "dummy_key_for_ci_pipeline"
+      run: |
+        pytest

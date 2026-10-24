@@ -1,10 +1,10 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from sqlalchemy.engine import make_url
 
-import chromadb
 from llama_index.core import VectorStoreIndex, StorageContext, Settings
-from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.vector_stores.postgres import PGVectorStore
 from llama_index.embeddings.gemini import GeminiEmbedding
 from llama_index.llms.gemini import Gemini
 
@@ -12,7 +12,7 @@ from llama_index.llms.gemini import Gemini
 load_dotenv()
 api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
-DB_DIR = Path("chroma_db")
+
 PROMPT_PATH = Path("prompts/agent_prompt.md")
 
 
@@ -25,24 +25,31 @@ def load_system_prompt() -> str:
 
 def get_query_engine():
     """
-    Configura o motor de busca RAG unindo o ChromaDB,
+    Configura o motor de busca RAG unindo o PostgreSQL (pgvector),
     o modelo Gemini e as regras do Prompt do Agente.
     """
-    if not DB_DIR.exists():
-        raise FileNotFoundError(
-            "⚠️ Base vetorial não encontrada. Execute 'src/ingest.py' primeiro."
-        )
 
-    # 1. Conectar ao ChromaDB existente
-    db = chromadb.PersistentClient(path=str(DB_DIR))
-    chroma_collection = db.get_or_create_collection("juridico_collection")
-    vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-
-    # 2. Configurar Embedding e LLM do Gemini nas globais do LlamaIndex
+    # 1. Configurar Embedding e LLM do Gemini nas globais do LlamaIndex
     Settings.embed_model = GeminiEmbedding(
         model_name="gemini-embedding-001", api_key=api_key
     )
     Settings.llm = Gemini(model_name="gemini-2.5-flash", api_key=api_key)
+
+    # 2. Conectar ao Vector Store do PostgreSQL de forma dinâmica e segura
+    db_url = os.getenv(
+        "DATABASE_URL", "postgresql://postgres:password@localhost:5432/juridico_db"
+    )
+    url = make_url(db_url)
+
+    vector_store = PGVectorStore.from_params(
+        database=url.database or "juridico_db",
+        host=url.host or "localhost",
+        password=url.password or "",
+        port=url.port or 5432,
+        user=url.username or "postgres",
+        table_name="juridico_nodes",
+        embed_dim=768,
+    )
 
     # 3. Carregar o índice vetorial
     index = VectorStoreIndex.from_vector_store(

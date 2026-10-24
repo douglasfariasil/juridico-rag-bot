@@ -1,6 +1,20 @@
 version: '3.8'
 
 services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: juridico_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-juridico_db}
+    ports:
+      # Mapeia na porta 5433 do host para não conflitar com PostgreSQL já instalado na máquina
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
   api:
     build:
       context: .
@@ -10,10 +24,12 @@ services:
       - "8000:8000"
     volumes:
       - ./data:/app/data
-      - ./chroma_db:/app/chroma_db
       - ./prompts:/app/prompts
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-juridico_db}
+    depends_on:
+      - db
     restart: unless-stopped
 
   streamlit:
@@ -23,11 +39,12 @@ services:
     container_name: juridico_streamlit
     ports:
       - "8501:8501"
-    volumes:
-      - ./data:/app/data
-      - ./chroma_db:/app/chroma_db
     environment:
       - API_URL=http://api:8000/chat
     depends_on:
       - api
     restart: unless-stopped
+
+volumes:
+  pgdata:
+
