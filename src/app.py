@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import requests
 
@@ -13,8 +14,8 @@ st.markdown(
     "Consulte prazos processuais, regras da OAB e cláusulas contratuais de forma rápida e segura."
 )
 
-# URL do endpoint da nossa API FastAPI
-API_URL = "http://127.0.0.1:8000/chat"
+# URL do endpoint da nossa API FastAPI (usa variável de ambiente no Docker ou fallback local)
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/chat")
 
 # Inicializar o histórico do chat na sessão
 if "messages" not in st.session_state:
@@ -63,7 +64,7 @@ if prompt := st.chat_input(
 
             except requests.exceptions.ConnectionError:
                 st.error(
-                    "⚠️ Não foi possível conectar à API FastAPI. Verifique se o servidor está rodando em `http://127.0.0.1:8000`."
+                    f"⚠️ Não foi possível conectar à API FastAPI. Verifique se o servidor está rodando em `{API_URL}`."
                 )
             except Exception as e:
                 st.error(f"Ocorreu um erro inesperado: {str(e)}")

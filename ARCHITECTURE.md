@@ -1,5 +1,24 @@
 # Desenho técnico da solução
 
+[ Documentos (PDFs/Contratos/OAB) ] 
+       │
+       ▼
+[ Pipeline de Ingestão (Python + Chunking + Embeddings) ]
+       │
+       ▼
+[ Banco Vetorial (pgvector ou ChromaDB) ] ◄── [ Base de Conhecimento ]
+       │
+       ▼
+[ Orquestrador RAG (LlamaIndex / LangChain) + Gemini API ]
+       │
+       ▼
+[ API Backend (FastAPI) ] ──► [ Interface (Streamlit / Chat Interno) ]
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+![alt text](image.png)
+
 # Arquitetura do Sistema - Bot de Prazos e Contratos (RAG)
 
 ## Visão Geral
@@ -10,3 +29,4 @@ Sistema de Assistência Jurídica baseado em RAG (Retrieval-Augmented Generation
 2. **Armazenamento Vetorial:** ChromaDB (ambiente local) / pgvector (produção).
 3. **Orquestração RAG (`src/bot.py`):** LlamaIndex para recuperação de contexto e união com o Prompt do Agente.
 4. **API Backend (`src/api.py`):** FastAPI para expor endpoints REST assíncronos.
+

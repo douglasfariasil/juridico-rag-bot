@@ -39,8 +39,10 @@ def get_query_engine():
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 
     # 2. Configurar Embedding e LLM do Gemini nas globais do LlamaIndex
-    Settings.embed_model = GeminiEmbedding(model_name="gemini-embedding-001")
-    Settings.llm = Gemini(model_name="gemini-2.5-flash")
+    Settings.embed_model = GeminiEmbedding(
+        model_name="gemini-embedding-001", api_key=api_key
+    )
+    Settings.llm = Gemini(model_name="gemini-2.5-flash", api_key=api_key)
 
     # 3. Carregar o índice vetorial
     index = VectorStoreIndex.from_vector_store(

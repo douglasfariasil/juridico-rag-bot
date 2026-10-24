@@ -50,6 +50,9 @@ def chat_with_bot(request: QueryRequest):
 
         return QueryResponse(answer=str(response), sources=list(set(sources)))
     except Exception as e:
+        import traceback
+
+        traceback.print_exc()
         raise HTTPException(
             status_code=500, detail=f"Erro ao processar consulta: {str(e)}"
         )

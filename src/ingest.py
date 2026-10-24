@@ -41,7 +41,15 @@ def run_ingestion():
 
     # 2. Configurar o banco vetorial ChromaDB
     chroma_client = chromadb.PersistentClient(path=str(DB_DIR))
+
+    # # Se quiser recriar do zero sempre:
+    # try:
+    #     chroma_client.delete_collection("juridico_collection")
+    # except Exception:
+    #     pass
+
     chroma_collection = chroma_client.get_or_create_collection("juridico_collection")
+
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
