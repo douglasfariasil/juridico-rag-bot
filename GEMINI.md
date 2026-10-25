@@ -15,7 +15,7 @@ Seu propósito é permitir que advogados associados, estagiários e gestores con
 - **Modelos de IA (Google Gemini)**:
   - **LLM**: `gemini-2.5-flash` (via API Gemini).
   - **Embedding**: `gemini-embedding-001` / `models/gemini-embedding-001`.
-- **Banco Vetorial**: PostgreSQL com extensão `pgvector` (tabela `juridico_nodes`), gerenciado via container Docker `juridico_postgres`.
+**Banco Vetorial**: PostgreSQL com extensão `pgvector` (tabela `juridico_nodes`), gerenciado via container Docker `juridico_postgres`.
 - **Backend / API**: [FastAPI](https://fastapi.tiangolo.com/) com validação via Pydantic e servidor Uvicorn.
 - **Frontend / Interface**: [Streamlit](https://streamlit.io/) com chat interativo e exibição de fontes citadas.
 - **Containerização**: Docker e Docker Compose (`Dockerfile`, `Dockerfile.streamlit`, `docker-compose.yml`).
